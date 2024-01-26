@@ -29,9 +29,9 @@ def execute_queue(route_name):
                     print(f"Arquivo {file_path} existe: {os.path.exists(file_path)}")
 
                     if os.path.exists(file_path):
-    subprocess.Popen(f"chmod +x {file_path} && /bin/bash {file_path}", shell=True).wait()
-    if os.path.exists(file_path):  # Verificar novamente antes de remover o arquivo
-        os.remove(file_path)  # Remover o arquivo após a execução
+                        subprocess.Popen(f"chmod +x {file_path} && /bin/bash {file_path}", shell=True).wait()
+                        if os.path.exists(file_path):  # Verificar novamente antes de remover o arquivo
+                            os.remove(file_path)  # Remover o arquivo após a execução
 
             time.sleep(1)
 
@@ -42,9 +42,8 @@ queues = {
     'editar': execute_queue('editar'),
     'deletar': execute_queue('deletar'),
     'criar': execute_queue('criar'),
-    'online': execute_queue('online') 
+    'online': execute_queue('online')  # Adicionando a rota 'online'
 }
-
 
 @app.route('/')
 def index():
