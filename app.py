@@ -29,8 +29,9 @@ def execute_queue(route_name):
                     print(f"Arquivo {file_path} existe: {os.path.exists(file_path)}")
 
                     if os.path.exists(file_path):
-                        subprocess.Popen(f"chmod +x {file_path} && /bin/bash {file_path}", shell=True).wait()
-                        if os.path.exists(file_path):  # Verificar novamente antes de remover o arquivo
+                        result = subprocess.run(["chmod", "+x", file_path])
+                        if result.returncode == 0:
+                            subprocess.Popen(["/bin/bash", file_path]).wait()
                             os.remove(file_path)  # Remover o arquivo após a execução
 
             time.sleep(1)
@@ -63,9 +64,6 @@ def criar():
 
 @app.route('/online', methods=['POST'])
 def online():
-    return handle_script(request, 'online')
-
-def handle_script(request, route_name):
     file = request.files['file']
 
     if file is None:
@@ -74,7 +72,7 @@ def handle_script(request, route_name):
     if file.filename == '':
         return "Nenhum arquivo selecionado", 400
 
-    folder_path = os.path.join(BASE_SCRIPTS_FOLDER, route_name)
+    folder_path = os.path.join(BASE_SCRIPTS_FOLDER, 'online')
     os.makedirs(folder_path, exist_ok=True)
 
     file_path = os.path.abspath(os.path.join(folder_path, secure_filename(file.filename)))
