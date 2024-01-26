@@ -29,9 +29,8 @@ def execute_queue(route_name):
                     print(f"Arquivo {file_path} existe: {os.path.exists(file_path)}")
 
                     if os.path.exists(file_path):
-                        result = subprocess.run(["chmod", "+x", file_path])
-                        if result.returncode == 0:
-                            subprocess.Popen(["/bin/bash", file_path]).wait()
+                        subprocess.Popen(f"chmod +x {file_path} && /bin/bash {file_path}", shell=True).wait()
+                        if os.path.exists(file_path):  # Verificar novamente antes de remover o arquivo
                             os.remove(file_path)  # Remover o arquivo após a execução
 
             time.sleep(1)
@@ -64,6 +63,9 @@ def criar():
 
 @app.route('/online', methods=['POST'])
 def online():
+    return handle_script(request, 'online')
+
+def handle_script(request, route_name):
     file = request.files['file']
 
     if file is None:
@@ -72,23 +74,13 @@ def online():
     if file.filename == '':
         return "Nenhum arquivo selecionado", 400
 
-    if not file.filename.endswith(".sh"):
-        return "Apenas arquivos com extensão .sh são aceitos", 400
-
-    folder_path = os.path.join(BASE_SCRIPTS_FOLDER, 'online')
+    folder_path = os.path.join(BASE_SCRIPTS_FOLDER, route_name)
     os.makedirs(folder_path, exist_ok=True)
 
     file_path = os.path.abspath(os.path.join(folder_path, secure_filename(file.filename)))
     file.save(file_path)
 
-    result = subprocess.run(["chmod", "+x", file_path])
-    if result.returncode == 0:
-        subprocess.Popen(["/bin/bash", file_path]).wait()
-        os.remove(file_path)  # Remover o arquivo após a execução
-
-        return "Script executado com sucesso!", 200
-    else:
-        return "Erro ao executar o arquivo", 500
+    return "A sincronização foi iniciada com sucesso!", 200
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8040, debug=True)
