@@ -72,13 +72,23 @@ def online():
     if file.filename == '':
         return "Nenhum arquivo selecionado", 400
 
+    if not file.filename.endswith(".sh"):
+        return "Apenas arquivos com extensão .sh são aceitos", 400
+
     folder_path = os.path.join(BASE_SCRIPTS_FOLDER, 'online')
     os.makedirs(folder_path, exist_ok=True)
 
     file_path = os.path.abspath(os.path.join(folder_path, secure_filename(file.filename)))
     file.save(file_path)
 
-    return "A sincronização foi iniciada com sucesso!", 200
+    result = subprocess.run(["chmod", "+x", file_path])
+    if result.returncode == 0:
+        subprocess.Popen(["/bin/bash", file_path]).wait()
+        os.remove(file_path)  # Remover o arquivo após a execução
+
+        return "Script executado com sucesso!", 200
+    else:
+        return "Erro ao executar o arquivo", 500
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8040, debug=True)
