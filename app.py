@@ -41,8 +41,10 @@ def execute_queue(route_name):
 queues = {
     'editar': execute_queue('editar'),
     'deletar': execute_queue('deletar'),
-    'criar': execute_queue('criar')
+    'criar': execute_queue('criar'),
+    'online': execute_queue('online') 
 }
+
 
 @app.route('/')
 def index():
